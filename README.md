@@ -50,3 +50,40 @@ Now go to Netlify Site Settings and then go to the `Build and Deploy` page. Scro
 At last, go to Netlify `Deploys` page and Trigger Deploy. Congratulation, your application is deployed and connected to Cosmic JS Bucket.
 
 ![Add Environment Variables](src/assets/redeploy.png)
+## Security Remediation (KAN-1): minimatch CVE-2026-26996
+
+This project had a Dependabot alert for a Regular Expression DoS in `minimatch` (CVE-2026-26996). We remediated by forcing a patched version across the dependency graph using npm `overrides`.
+
+### Implementation
+
+Add the following to `package.json`:
+
+```json
+{
+  "overrides": {
+    "minimatch": "3.1.3"
+  }
+}
+```
+
+Notes:
+- Use npm v8+ so `overrides` is supported.
+
+### Verification
+
+Run:
+
+```bash
+npm install
+npm dedupe
+npm ls minimatch
+npm audit
+```
+
+Expected:
+- All entries show `minimatch@3.1.3`.
+- The minimatch advisory is cleared in `npm audit`.
+
+### Governance
+
+Work tracked under Jira key `KAN-1`. Branch name used: `KAN-1-fix-minimatch-redos`. Commits and PRs should follow the Jira-first workflow.
